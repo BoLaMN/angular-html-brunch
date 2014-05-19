@@ -1,0 +1,18 @@
+{
+  "name": "angular-html-brunch",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:aobyrne/angular-html-brunch.git"
+  },
+  "main": "lib/index",
+  "engines": {
+    "node": ">=0.8"
+  },
+  "scripts": {
+    "postinstall": "node_modules/.bin/coffee -c -o lib src"
+  },
+  "dependencies": {
+    "coffee-script": "~1.5.0"
+  }
+}
