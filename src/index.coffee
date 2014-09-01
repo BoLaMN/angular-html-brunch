@@ -16,7 +16,7 @@ module.exports = class AngularTemplateCompiler
     stringifyTemplate = (str) ->
       stringArray = '['
       str.split('\n').map (e, i) ->
-        stringArray += "'" + e.replace(/'/g, "") + "',"
+        stringArray += "'" + e.replace(/'/g, "\\'") + "',"
       stringArray += "''" + '].join("\\n")'
 
     result =  """
