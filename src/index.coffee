@@ -11,7 +11,6 @@ module.exports = class AngularTemplateCompiler
     @targetModule = config.plugins?.angularTemplates?.targetModule or 'templates'
     @prependPath = config.plugins?.angularTemplates?.prependPath or ''
     @htmlMinify = config.plugins?.angularTemplates?.htmlMinify or {}
-
     @firstFolderCount = false
     @currentCount = 0 
 
@@ -22,25 +21,22 @@ module.exports = class AngularTemplateCompiler
     
   escapeContent = (content) ->
     bsRegexp = new RegExp '\\\\', 'g'
-    quoteRegexp = new RegExp '\\"', 'g'
+    quoteRegexp = new RegExp '\\\'', 'g'
     
-    nlReplace = '\\n"+\n"';
+    nlReplace = '';
 
-    content.replace(bsRegexp, '\\\\').replace(quoteRegexp, '\\"').replace /\r?\n/g, nlReplace
+    content.replace(bsRegexp, '\\\\').replace(quoteRegexp, "\\'").replace /\r?\n/g, nlReplace
 
   getContent = (content, htmlmin) ->
-    if Object.keys(htmlmin).length
-      optionArray = []
-      for i of htmlmin
-        optionArray.push [i, htmlmin[i]]
-      content = minify(content, optionArray)
-    escapeContent content
+    optionArray = []
+    for i of htmlmin
+      optionArray.push [i, htmlmin[i]]
+    escapeContent minify(content, optionArray)
 
+  compileTemplate = (moduleName, content, suffix, htmlmin) ->
+    contentModified = getContent content, htmlmin
 
-  compileTemplate = (moduleName, content, suffix) ->
-    contentModified = getContent content, @htmlMinify
-
-    "$templateCache.put(\"#{moduleName}\",\"#{contentModified}\");\n #{suffix}"
+    "$templateCache.put('#{moduleName}','#{contentModified}'); #{suffix}"
 
   compile: (content, path, callback) ->
     suffix = ''
@@ -57,7 +53,7 @@ module.exports = class AngularTemplateCompiler
     moduleName = @prependPath + pathUtils.basename(path)
     @moduleNames.push "'#{moduleName}'"
 
-    callback(null, compileTemplate(moduleName, content, suffix))
+    callback(null, compileTemplate(moduleName, content, suffix, @htmlMinify))
 
 
   onCompile: (generatedFiles) ->
@@ -68,8 +64,7 @@ module.exports = class AngularTemplateCompiler
 
     while i < joinToKeys.length
       path = @publicPath + pathUtils.sep + joinToKeys[i]
-      bundle = """var module = angular.module('#{@targetModule}', []);\n
-        module.run(['$templateCache', function($templateCache) {\n\n"""
+      bundle = """angular.module('#{@targetModule}', []).run(['$templateCache', function($templateCache) {\n"""
       
       pathExists = fs.statSync path
 
