@@ -13,6 +13,7 @@
     "postinstall": "node_modules/.bin/coffee -c -o lib src"
   },
   "dependencies": {
-    "coffee-script": "~1.5.0"
+    "coffee-script": "~1.5.0",
+    "html-minifier": "~0.7.0"
   }
 }

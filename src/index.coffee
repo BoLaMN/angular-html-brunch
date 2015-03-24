@@ -1,5 +1,6 @@
 pathUtils = require('path')
 fs = require('fs')
+minify = require('html-minifier').minify
 
 module.exports = class AngularTemplateCompiler
   brunchPlugin: yes
@@ -9,7 +10,8 @@ module.exports = class AngularTemplateCompiler
   constructor: (config) ->
     @targetModule = config.plugins?.angularTemplates?.targetModule or 'templates'
     @prependPath = config.plugins?.angularTemplates?.prependPath or ''
-    
+    @htmlMinify = config.plugins?.angularTemplates?.htmlMinify or {}
+
     @firstFolderCount = false
     @currentCount = 0 
 
@@ -26,8 +28,17 @@ module.exports = class AngularTemplateCompiler
 
     content.replace(bsRegexp, '\\\\').replace(quoteRegexp, '\\"').replace /\r?\n/g, nlReplace
 
+  getContent = (content, htmlmin) ->
+    if Object.keys(htmlmin).length
+      optionArray = []
+      for i of htmlmin
+        optionArray.push [i, htmlmin[i]]
+      content = minify(content, optionArray)
+    escapeContent content
+
+
   compileTemplate = (moduleName, content, suffix) ->
-    contentModified = escapeContent content
+    contentModified = getContent content, @htmlMinify
 
     "$templateCache.put(\"#{moduleName}\",\"#{contentModified}\");\n #{suffix}"
 
